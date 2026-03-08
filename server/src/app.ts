@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import { errorHandler } from './shared/middleware/error.middleware.js';
 import { ok } from './shared/lib/response.js';
+import authRoutes from './modules/auth/auth.routes.js';
 
 export function createApp() {
   const app = express();
@@ -21,6 +22,8 @@ export function createApp() {
   app.get('/health', (_req, res) => {
     res.json(ok({ status: 'ok' }));
   });
+
+  app.use('/auth', authRoutes);
 
   app.use(errorHandler);
 
