@@ -24,6 +24,15 @@ npm run dev
 - **Backend:** Node.js + Express + Prisma + PostgreSQL
 - **Auth:** JWT access tokens + HTTP-only refresh token cookies
 
+## API Endpoints
+
+### Auth
+- `POST /auth/register` — Create account
+- `POST /auth/login` — Sign in
+- `POST /auth/refresh` — Refresh access token
+- `POST /auth/logout` — Sign out
+- `GET /auth/me` — Get current user
+
 ## Development
 
 ```bash
