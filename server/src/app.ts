@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import { errorHandler } from './shared/middleware/error.middleware.js';
 import { ok } from './shared/lib/response.js';
 import authRoutes from './modules/auth/auth.routes.js';
+import nutritionRoutes from './modules/nutrition/nutrition.routes.js';
 
 export function createApp() {
   const app = express();
@@ -24,6 +25,7 @@ export function createApp() {
   });
 
   app.use('/auth', authRoutes);
+  app.use('/nutrition', nutritionRoutes);
 
   app.use(errorHandler);
 
