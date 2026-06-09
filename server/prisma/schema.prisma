@@ -15,12 +15,14 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  refreshTokens  RefreshToken[]
-  recipes        Recipe[]
-  mealPlans      MealPlan[]
-  pantryItems    PantryItem[]
-  shoppingLists  ShoppingList[]
-  sleepLogs      SleepLog[]
+  refreshTokens    RefreshToken[]
+  recipes          Recipe[]
+  mealPlans        MealPlan[]
+  pantryItems      PantryItem[]
+  shoppingLists    ShoppingList[]
+  sleepLogs        SleepLog[]
+  workoutSessions  WorkoutSession[]
+  personalRecords  PersonalRecord[]
 }
 
 model RefreshToken {
@@ -136,11 +138,81 @@ model SleepLog {
   bedtime     DateTime
   wakeTime    DateTime
   durationMin Int
-  quality     Int      // 1-5 scale
+  quality     Int
   notes       String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@index([userId])
   @@index([userId, bedtime])
+}
+
+model Exercise {
+  id           String   @id @default(cuid())
+  name         String   @unique
+  category     String   // strength, cardio, flexibility, sport
+  muscleGroups String[] // primary muscles
+  equipment    String?  // barbell, dumbbell, machine, bodyweight, etc.
+  instructions String?
+  isCustom     Boolean  @default(false)
+  createdById  String?
+  createdAt    DateTime @default(now())
+
+  workoutSets     WorkoutSet[]
+  personalRecords PersonalRecord[]
+
+  @@index([category])
+  @@index([name])
+}
+
+model WorkoutSession {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String?
+  startedAt   DateTime
+  endedAt     DateTime?
+  durationMin Int?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sets WorkoutSet[]
+
+  @@index([userId])
+  @@index([userId, startedAt])
+}
+
+model WorkoutSet {
+  id         String         @id @default(cuid())
+  sessionId  String
+  session    WorkoutSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  exerciseId String
+  exercise   Exercise       @relation(fields: [exerciseId], references: [id])
+  setNumber  Int
+  reps       Int?
+  weightKg   Float?
+  durationSec Int?         // for timed sets
+  distanceM  Float?        // for cardio
+  notes      String?
+
+  @@index([sessionId])
+  @@index([exerciseId])
+}
+
+model PersonalRecord {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exerciseId String
+  exercise   Exercise @relation(fields: [exerciseId], references: [id])
+  weightKg   Float?
+  reps       Int?
+  distanceM  Float?
+  durationSec Int?
+  achievedAt DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([userId, exerciseId])
 }
