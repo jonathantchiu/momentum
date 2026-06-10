@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import { authRouter } from './modules/auth/auth.routes';
 import { nutritionRouter } from './modules/nutrition/nutrition.routes';
 import { sleepRouter } from './modules/sleep/sleep.routes';
+import { fitnessRouter } from './modules/fitness/fitness.routes';
 import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
@@ -17,6 +18,7 @@ app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 app.use('/api/auth', authRouter);
 app.use('/api/nutrition', nutritionRouter);
 app.use('/api/sleep', sleepRouter);
+app.use('/api/fitness', fitnessRouter);
 
 app.use(errorHandler);
 
