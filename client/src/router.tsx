@@ -8,6 +8,7 @@ const RegisterPage = lazy(() => import('./features/auth/pages/RegisterPage'));
 const DashboardPage = lazy(() => import('./features/dashboard/pages/DashboardPage'));
 const NutritionPage = lazy(() => import('./features/nutrition/pages/NutritionPage'));
 const SleepPage = lazy(() => import('./features/sleep/pages/SleepPage'));
+const FitnessPage = lazy(() => import('./features/fitness/pages/FitnessPage'));
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -15,31 +16,17 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
 }
 
 const router = createBrowserRouter([
-  {
-    path: '/login',
-    element: <Suspense fallback={null}><LoginPage /></Suspense>,
-  },
-  {
-    path: '/register',
-    element: <Suspense fallback={null}><RegisterPage /></Suspense>,
-  },
+  { path: '/login', element: <Suspense fallback={null}><LoginPage /></Suspense> },
+  { path: '/register', element: <Suspense fallback={null}><RegisterPage /></Suspense> },
   {
     path: '/',
     element: <PrivateRoute><AppLayout /></PrivateRoute>,
     children: [
       { index: true, element: <Navigate to="/dashboard" replace /> },
-      {
-        path: 'dashboard',
-        element: <Suspense fallback={null}><DashboardPage /></Suspense>,
-      },
-      {
-        path: 'nutrition/*',
-        element: <Suspense fallback={null}><NutritionPage /></Suspense>,
-      },
-      {
-        path: 'sleep',
-        element: <Suspense fallback={null}><SleepPage /></Suspense>,
-      },
+      { path: 'dashboard', element: <Suspense fallback={null}><DashboardPage /></Suspense> },
+      { path: 'nutrition/*', element: <Suspense fallback={null}><NutritionPage /></Suspense> },
+      { path: 'sleep', element: <Suspense fallback={null}><SleepPage /></Suspense> },
+      { path: 'fitness/*', element: <Suspense fallback={null}><FitnessPage /></Suspense> },
     ],
   },
 ]);
