@@ -23,6 +23,7 @@ model User {
   sleepLogs        SleepLog[]
   workoutSessions  WorkoutSession[]
   personalRecords  PersonalRecord[]
+  bodyMetrics      BodyMetric[]
 }
 
 model RefreshToken {
@@ -150,9 +151,9 @@ model SleepLog {
 model Exercise {
   id           String   @id @default(cuid())
   name         String   @unique
-  category     String   // strength, cardio, flexibility, sport
-  muscleGroups String[] // primary muscles
-  equipment    String?  // barbell, dumbbell, machine, bodyweight, etc.
+  category     String
+  muscleGroups String[]
+  equipment    String?
   instructions String?
   isCustom     Boolean  @default(false)
   createdById  String?
@@ -184,35 +185,59 @@ model WorkoutSession {
 }
 
 model WorkoutSet {
-  id         String         @id @default(cuid())
-  sessionId  String
-  session    WorkoutSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  exerciseId String
-  exercise   Exercise       @relation(fields: [exerciseId], references: [id])
-  setNumber  Int
-  reps       Int?
-  weightKg   Float?
-  durationSec Int?         // for timed sets
-  distanceM  Float?        // for cardio
-  notes      String?
+  id          String         @id @default(cuid())
+  sessionId   String
+  session     WorkoutSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  exerciseId  String
+  exercise    Exercise       @relation(fields: [exerciseId], references: [id])
+  setNumber   Int
+  reps        Int?
+  weightKg    Float?
+  durationSec Int?
+  distanceM   Float?
+  notes       String?
 
   @@index([sessionId])
   @@index([exerciseId])
 }
 
 model PersonalRecord {
-  id         String   @id @default(cuid())
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  exerciseId String
-  exercise   Exercise @relation(fields: [exerciseId], references: [id])
-  weightKg   Float?
-  reps       Int?
-  distanceM  Float?
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exerciseId  String
+  exercise    Exercise @relation(fields: [exerciseId], references: [id])
+  weightKg    Float?
+  reps        Int?
+  distanceM   Float?
   durationSec Int?
-  achievedAt DateTime
-  createdAt  DateTime @default(now())
+  achievedAt  DateTime
+  createdAt   DateTime @default(now())
 
   @@index([userId])
   @@index([userId, exerciseId])
+}
+
+model BodyMetric {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recordedAt   DateTime
+  weightKg     Float?
+  bodyFatPct   Float?
+  muscleMassKg Float?
+  waterPct     Float?
+  bmi          Float?
+  // Circumference measurements (cm)
+  waistCm      Float?
+  hipCm        Float?
+  chestCm      Float?
+  armCm        Float?
+  thighCm      Float?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
+  @@index([userId, recordedAt])
 }
