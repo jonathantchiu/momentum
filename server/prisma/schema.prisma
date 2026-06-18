@@ -24,6 +24,8 @@ model User {
   workoutSessions  WorkoutSession[]
   personalRecords  PersonalRecord[]
   bodyMetrics      BodyMetric[]
+  moodLogs         MoodLog[]
+  journalEntries   JournalEntry[]
 }
 
 model RefreshToken {
@@ -228,7 +230,6 @@ model BodyMetric {
   muscleMassKg Float?
   waterPct     Float?
   bmi          Float?
-  // Circumference measurements (cm)
   waistCm      Float?
   hipCm        Float?
   chestCm      Float?
@@ -240,4 +241,34 @@ model BodyMetric {
 
   @@index([userId])
   @@index([userId, recordedAt])
+}
+
+model MoodLog {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  loggedAt    DateTime
+  mood        Int      // 1-10 scale
+  energy      Int?     // 1-10 scale
+  stress      Int?     // 1-10 scale
+  tags        String[] // e.g. ["anxious", "productive", "tired"]
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([userId, loggedAt])
+}
+
+model JournalEntry {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String?
+  content   String
+  tags      String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
