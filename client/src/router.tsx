@@ -9,6 +9,7 @@ const DashboardPage = lazy(() => import('./features/dashboard/pages/DashboardPag
 const NutritionPage = lazy(() => import('./features/nutrition/pages/NutritionPage'));
 const SleepPage = lazy(() => import('./features/sleep/pages/SleepPage'));
 const FitnessPage = lazy(() => import('./features/fitness/pages/FitnessPage'));
+const BodyMetricsPage = lazy(() => import('./features/body-metrics/pages/BodyMetricsPage'));
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -27,6 +28,7 @@ const router = createBrowserRouter([
       { path: 'nutrition/*', element: <Suspense fallback={null}><NutritionPage /></Suspense> },
       { path: 'sleep', element: <Suspense fallback={null}><SleepPage /></Suspense> },
       { path: 'fitness/*', element: <Suspense fallback={null}><FitnessPage /></Suspense> },
+      { path: 'body-metrics', element: <Suspense fallback={null}><BodyMetricsPage /></Suspense> },
     ],
   },
 ]);
