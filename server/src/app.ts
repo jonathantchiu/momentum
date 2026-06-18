@@ -5,6 +5,7 @@ import { authRouter } from './modules/auth/auth.routes';
 import { nutritionRouter } from './modules/nutrition/nutrition.routes';
 import { sleepRouter } from './modules/sleep/sleep.routes';
 import { fitnessRouter } from './modules/fitness/fitness.routes';
+import { bodyMetricsRouter } from './modules/body-metrics/bodyMetrics.routes';
 import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
@@ -19,6 +20,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/nutrition', nutritionRouter);
 app.use('/api/sleep', sleepRouter);
 app.use('/api/fitness', fitnessRouter);
+app.use('/api/body-metrics', bodyMetricsRouter);
 
 app.use(errorHandler);
 
