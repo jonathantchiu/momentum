@@ -8,18 +8,19 @@ datasource db {
 }
 
 model User {
-  id              String               @id @default(cuid())
-  email           String               @unique
-  passwordHash    String
-  name            String
-  preferences     Json                 @default("{}")
-  createdAt       DateTime             @default(now())
-  updatedAt       DateTime             @updatedAt
-  refreshTokens   RefreshToken[]
-  recipes         Recipe[]
-  mealPlans       MealPlan[]
-  pantryItems     PantryItem[]
-  nutritionTarget DailyNutritionTarget?
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  refreshTokens  RefreshToken[]
+  recipes        Recipe[]
+  mealPlans      MealPlan[]
+  pantryItems    PantryItem[]
+  shoppingLists  ShoppingList[]
+  sleepLogs      SleepLog[]
 }
 
 model RefreshToken {
@@ -32,79 +33,114 @@ model RefreshToken {
 }
 
 model Recipe {
-  id            String         @id @default(cuid())
-  userId        String
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name          String
-  servings      Int            @default(1)
-  instructions  String         @default("")
-  sourceUrl     String?
-  imageUrl      String?
-  prepTimeMin   Int?
-  cookTimeMin   Int?
-  ingredients   Ingredient[]
-  mealPlanItems MealPlanItem[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String
+  servings     Int      @default(1)
+  prepTime     Int?
+  cookTime     Int?
+  instructions String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  ingredients     Ingredient[]
+  mealPlanEntries MealPlanEntry[]
+
+  @@index([userId])
 }
 
 model Ingredient {
-  id         String  @id @default(cuid())
-  recipeId   String
-  recipe     Recipe  @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  name       String
-  quantity   Float
-  unit       String
-  calories   Float?
-  proteinG   Float?
-  carbsG     Float?
-  fatG       Float?
-  fiberG     Float?
-  usdaFoodId String?
+  id       String @id @default(cuid())
+  recipeId String
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  name     String
+  amount   Float
+  unit     String
+  calories Float?
+  protein  Float?
+  carbs    Float?
+  fat      Float?
+
+  @@index([recipeId])
 }
 
 model MealPlan {
-  id        String         @id @default(cuid())
+  id        String   @id @default(cuid())
   userId    String
-  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  weekStart DateTime       @db.Date
-  items     MealPlanItem[]
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weekStart DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@unique([userId, weekStart])
+  entries MealPlanEntry[]
+
+  @@index([userId])
 }
 
-model MealPlanItem {
-  id        String   @id @default(cuid())
-  planId    String
-  plan      MealPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
-  recipeId  String
-  recipe    Recipe   @relation(fields: [recipeId], references: [id])
-  dayOfWeek Int
-  mealType  String
+model MealPlanEntry {
+  id         String   @id @default(cuid())
+  mealPlanId String
+  mealPlan   MealPlan @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
+  recipeId   String
+  recipe     Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  dayOfWeek  Int
+  mealType   String
+
+  @@index([mealPlanId])
 }
 
 model PantryItem {
-  id         String    @id @default(cuid())
-  userId     String
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name       String
-  quantity   Float
-  unit       String
-  expiryDate DateTime? @db.Date
-  usdaFoodId String?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  amount    Float
+  unit      String
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([userId])
 }
 
-model DailyNutritionTarget {
-  id       String @id @default(cuid())
-  userId   String @unique
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  calories Int    @default(2000)
-  proteinG Int    @default(150)
-  carbsG   Int    @default(250)
-  fatG     Int    @default(65)
-  fiberG   Int    @default(30)
+model ShoppingList {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String   @default("Shopping List")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items ShoppingListItem[]
+
+  @@index([userId])
+}
+
+model ShoppingListItem {
+  id             String       @id @default(cuid())
+  shoppingListId String
+  shoppingList   ShoppingList @relation(fields: [shoppingListId], references: [id], onDelete: Cascade)
+  name           String
+  amount         Float?
+  unit           String?
+  checked        Boolean      @default(false)
+
+  @@index([shoppingListId])
+}
+
+model SleepLog {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bedtime     DateTime
+  wakeTime    DateTime
+  durationMin Int
+  quality     Int      // 1-5 scale
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([userId, bedtime])
 }
