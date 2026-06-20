@@ -1,33 +1,23 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import cookieParser from 'cookie-parser';
-import { errorHandler } from './shared/middleware/error.middleware.js';
-import { ok } from './shared/lib/response.js';
-import authRoutes from './modules/auth/auth.routes.js';
-import nutritionRoutes from './modules/nutrition/nutrition.routes.js';
+import { authRouter } from './modules/auth/auth.routes';
+import { nutritionRouter } from './modules/nutrition/nutrition.routes';
+import { sleepRouter } from './modules/sleep/sleep.routes';
+import { errorHandler } from './middleware/errorHandler';
 
-export function createApp() {
-  const app = express();
+const app = express();
 
-  app.use(helmet());
-  app.use(
-    cors({
-      origin: process.env.CLIENT_URL ?? 'http://localhost:5173',
-      credentials: true,
-    })
-  );
-  app.use(express.json());
-  app.use(cookieParser());
+app.use(helmet());
+app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173', credentials: true }));
+app.use(express.json());
 
-  app.get('/health', (_req, res) => {
-    res.json(ok({ status: 'ok' }));
-  });
+app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
-  app.use('/auth', authRoutes);
-  app.use('/nutrition', nutritionRoutes);
+app.use('/api/auth', authRouter);
+app.use('/api/nutrition', nutritionRouter);
+app.use('/api/sleep', sleepRouter);
 
-  app.use(errorHandler);
+app.use(errorHandler);
 
-  return app;
-}
+export { app };
