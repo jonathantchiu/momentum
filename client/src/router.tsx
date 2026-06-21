@@ -1,33 +1,49 @@
-import { createBrowserRouter } from 'react-router-dom';
-import App from './App';
+import React, { lazy, Suspense } from 'react';
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
+import { useAuthStore } from './features/auth/store/authStore';
+import { AppLayout } from './components/layout/AppLayout';
 
-export const router = createBrowserRouter([
+const LoginPage = lazy(() => import('./features/auth/pages/LoginPage'));
+const RegisterPage = lazy(() => import('./features/auth/pages/RegisterPage'));
+const DashboardPage = lazy(() => import('./features/dashboard/pages/DashboardPage'));
+const NutritionPage = lazy(() => import('./features/nutrition/pages/NutritionPage'));
+const SleepPage = lazy(() => import('./features/sleep/pages/SleepPage'));
+
+function PrivateRoute({ children }: { children: React.ReactNode }) {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
+}
+
+const router = createBrowserRouter([
+  {
+    path: '/login',
+    element: <Suspense fallback={null}><LoginPage /></Suspense>,
+  },
+  {
+    path: '/register',
+    element: <Suspense fallback={null}><RegisterPage /></Suspense>,
+  },
   {
     path: '/',
-    element: <App />,
+    element: <PrivateRoute><AppLayout /></PrivateRoute>,
     children: [
-      { index: true, lazy: () => import('./features/auth/LoginPage') },
-      { path: 'login', lazy: () => import('./features/auth/LoginPage') },
-      { path: 'register', lazy: () => import('./features/auth/RegisterPage') },
+      { index: true, element: <Navigate to="/dashboard" replace /> },
       {
         path: 'dashboard',
-        lazy: () => import('./features/dashboard/DashboardPage'),
+        element: <Suspense fallback={null}><DashboardPage /></Suspense>,
       },
       {
-        path: 'nutrition',
-        lazy: () => import('./features/nutrition/NutritionLayout'),
-        children: [
-          { index: true, lazy: () => import('./features/nutrition/recipes/RecipeListPage') },
-          { path: 'recipes', lazy: () => import('./features/nutrition/recipes/RecipeListPage') },
-          { path: 'recipes/new', lazy: () => import('./features/nutrition/recipes/RecipeFormPage') },
-          { path: 'recipes/:id', lazy: () => import('./features/nutrition/recipes/RecipeDetailPage') },
-          { path: 'recipes/:id/edit', lazy: () => import('./features/nutrition/recipes/RecipeFormPage') },
-          { path: 'meal-plan', lazy: () => import('./features/nutrition/meal-planner/MealPlannerPage') },
-          { path: 'pantry', lazy: () => import('./features/nutrition/pantry/PantryPage') },
-          { path: 'shopping-list', lazy: () => import('./features/nutrition/shopping-list/ShoppingListPage') },
-          { path: 'macros', lazy: () => import('./features/nutrition/dashboard/MacroDashboardPage') },
-        ],
+        path: 'nutrition/*',
+        element: <Suspense fallback={null}><NutritionPage /></Suspense>,
+      },
+      {
+        path: 'sleep',
+        element: <Suspense fallback={null}><SleepPage /></Suspense>,
       },
     ],
   },
 ]);
+
+export function AppRouter() {
+  return <RouterProvider router={router} />;
+}
